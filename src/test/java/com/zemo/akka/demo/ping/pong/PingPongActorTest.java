@@ -3,6 +3,7 @@ package com.zemo.akka.demo.ping.pong;
 import static org.junit.Assert.*;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.DeadLetter;
 import akka.testkit.javadsl.TestKit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,6 +54,8 @@ public class PingPongActorTest {
     actorPingPongTestProbe.expectMsgClass(PingPongActor.StopDoneMsg.class);
 
     actorPingPongStart.tell(new PingPongActor.PingMsg("Ping Test msg after StopMsg"), actorPingPongTestProbe.getRef());
-    actorPingPongTestProbe.expectNoMsg();
+    actorPingPongTestProbe.getSystem().eventStream().subscribe(actorPingPongTestProbe.getRef(), DeadLetter.class);
+    DeadLetter deadLetter = actorPingPongTestProbe.expectMsgAnyClassOf(DeadLetter.class);
+    //deadLetter.message() // check what message, should be Stop
   }
 }

@@ -62,10 +62,12 @@ public class PingPongActor extends AbstractActor {
     return receiveBuilder()
         .match(StartMsg.class, startMsgMsg -> {
           log.info("StartMsg: "+ this.self().path().name());
+          startMsgMsg.actor.tell(new PingMsg("assadas"), self());
         })
         .match(PingMsg.class, pingMsg -> {
           log.info("Ping -> Actor name: " +this.self().path().name()+ " with payload: " + pingMsg.payload);
           countPing += 1;
+          getSender().tell(new PongMsg("asdasds"), self());
         })
         .match(PongMsg.class, pongMsg -> {
           log.info("Pong -> name: "+ this.self().path().name()+ " with payload: " + pongMsg.payload);
@@ -73,6 +75,8 @@ public class PingPongActor extends AbstractActor {
         })
         .match(StopMsg.class, stopMsg -> {
           log.info("StopMsg: "+ this.self().path().name());
+          getContext().stop(self());
+          getSender().tell(new StopDoneMsg(), self());
         })
         .build();
   }
